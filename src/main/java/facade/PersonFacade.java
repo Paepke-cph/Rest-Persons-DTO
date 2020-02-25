@@ -6,6 +6,7 @@ package facade;
 
 import entity.Person;
 import entity.dto.PersonDTO;
+import exception.PersonNotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +57,7 @@ public class PersonFacade implements IPersonFacade {
     }
 
     @Override
-    public PersonDTO editPerson(PersonDTO dto) {
+    public PersonDTO editPerson(PersonDTO dto) throws PersonNotFoundException {
         EntityManager entityManager = getEntityManager();
         PersonDTO updated = null;
         try {
@@ -68,6 +69,7 @@ public class PersonFacade implements IPersonFacade {
                                             .setParameter("id", dto.getId()).executeUpdate();
             entityManager.getTransaction().commit();
             updated = getPerson(dto.getId());
+            if(updated == null) throw new PersonNotFoundException("Person was not found");
         } finally {
             entityManager.close();
         }
@@ -75,7 +77,7 @@ public class PersonFacade implements IPersonFacade {
     }
 
     @Override
-    public PersonDTO deletePerson(int id) {
+    public PersonDTO deletePerson(int id) throws PersonNotFoundException{
         EntityManager entityManager = getEntityManager();
         PersonDTO person = null;
         try {
@@ -84,9 +86,9 @@ public class PersonFacade implements IPersonFacade {
                 entityManager.getTransaction().begin();
                 int rows = entityManager.createNamedQuery("Person.deleteById", Person.class).setParameter("id", id).executeUpdate();
                 entityManager.getTransaction().commit();
+            } else {
+                throw new PersonNotFoundException("Person was not found");
             }
-        } catch (Exception e) {
-            entityManager.getTransaction().rollback();
         } finally {
             entityManager.close();
         }
@@ -94,7 +96,7 @@ public class PersonFacade implements IPersonFacade {
     }
 
     @Override
-    public PersonDTO getPerson(int id) {
+    public PersonDTO getPerson(int id) throws PersonNotFoundException {
         EntityManager entityManager = getEntityManager();
         Person person = null;
         try {
@@ -102,8 +104,11 @@ public class PersonFacade implements IPersonFacade {
         } finally {
             entityManager.close();
         }
-        PersonDTO result = person == null ? null : new PersonDTO(person);
-        return result;
+        if(person == null) {
+            throw new PersonNotFoundException("Person was not found");
+        } else {
+            return new PersonDTO(person);
+        }
     }
 
     public PersonDTO addPerson(String firstName, String lastName, String phone) {

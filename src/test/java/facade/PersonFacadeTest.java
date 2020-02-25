@@ -6,6 +6,8 @@ package facade;
 
 import entity.Person;
 import entity.dto.PersonDTO;
+import exception.PersonNotFoundException;
+import org.eclipse.persistence.jpa.jpql.Assert;
 import utils.EMF_Creator;
 import utils.EMF_Creator.DbSelector;
 import utils.EMF_Creator.Strategy;
@@ -21,8 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class PersonFacadeTest {
@@ -75,7 +76,7 @@ public class PersonFacadeTest {
     }
 
     @Test
-    public void testEditPerson_with_valid_id() {
+    public void testEditPerson_with_valid_id() throws PersonNotFoundException {
         Person person = new Person("FN", "Petersen", "1111");
         person.setId(1);
         PersonDTO personDTO = new PersonDTO(person);
@@ -89,12 +90,11 @@ public class PersonFacadeTest {
     @Test
     public void testDeletePerson_with_invalid_id() {
         int id = 1000;
-        PersonDTO person = personfacade.deletePerson(id);
-        assertNull(person);
+        assertThrows(PersonNotFoundException.class, () -> personfacade.deletePerson(id));
     }
 
     @Test
-    public void testDeletePerson_with_valid_id() {
+    public void testDeletePerson_with_valid_id() throws PersonNotFoundException {
         int id = 1;
         PersonDTO person = personfacade.deletePerson(id);
         assertEquals("Peter", person.getFirstName());
@@ -105,12 +105,11 @@ public class PersonFacadeTest {
     @Test
     public void testGetPerson_with_invalid_id() {
         int id = 1000;
-        PersonDTO person = personfacade.getPerson(id);
-        assertNull(person);
+        assertThrows(PersonNotFoundException.class,() -> personfacade.getPerson(id));
     }
 
     @Test
-    public void testGetPerson_with_valid_id() {
+    public void testGetPerson_with_valid_id() throws PersonNotFoundException {
         int id = 1;
         PersonDTO person = personfacade.getPerson(id);
         assertEquals("Peter", person.getFirstName());

@@ -6,8 +6,10 @@ package rest;
 
 import com.google.gson.Gson;
 import entity.dto.PersonDTO;
+import exception.PersonNotFoundException;
 import facade.IPersonFacade;
 import facade.PersonFacade;
+import org.glassfish.jersey.internal.Errors;
 import utils.EMF_Creator;
 
 import javax.persistence.EntityManagerFactory;
@@ -15,6 +17,7 @@ import javax.print.attribute.standard.Media;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.logging.ErrorManager;
 
 
 @Path("/person")
@@ -32,7 +35,16 @@ public class PersonResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getById(@PathParam("id") int id) {
-        return Response.ok(FACADE.getPerson(id)).build();
+        try {
+            PersonDTO person = FACADE.getPerson(id);
+            return Response.ok(person).build();
+        } catch (PersonNotFoundException e) {
+            return Response
+                    .status(404)
+                    .entity("No Person with provided id found!")
+                    .type("application/json")
+                    .build();
+        }
     }
 
     @GET
@@ -51,19 +63,34 @@ public class PersonResource {
         return Response.ok(personDTO).build();
     }
 
-    @POST
-    @Path("/edit")
+    @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response editPerson(String json) {
         PersonDTO personDTO = new Gson().fromJson(json, PersonDTO.class);
-        personDTO = FACADE.editPerson(personDTO);
-        return Response.ok(personDTO).build();
+        try {
+            personDTO = FACADE.editPerson(personDTO);
+            return Response.ok(personDTO).build();
+        } catch (PersonNotFoundException e) {
+            return Response
+                    .status(404)
+                    .entity("No Person with provided id found!")
+                    .type("application/json")
+                    .build();
+        }
     }
 
     @DELETE
     @Path("/{id}")
     public Response deletePerson(@PathParam("id") int id) {
-        return Response.ok(FACADE.deletePerson(id)).build();
+        try {
+            return Response.ok(FACADE.deletePerson(id)).build();
+        } catch(PersonNotFoundException e) {
+            return Response
+                    .status(404)
+                    .entity("Could not delete, provided id does not exist!")
+                    .type("application/json")
+                    .build();
+        }
     }
 }
