@@ -4,12 +4,12 @@ package facade;
  * version 1.0
  */
 
+import entity.Address;
 import entity.Person;
 import entity.dto.PersonDTO;
 import entity.dto.PersonsDTO;
 import exception.MissingInputException;
 import exception.PersonNotFoundException;
-import org.eclipse.persistence.jpa.jpql.Assert;
 import utils.EMF_Creator;
 import utils.EMF_Creator.DbSelector;
 import utils.EMF_Creator.Strategy;
@@ -17,13 +17,9 @@ import utils.EMF_Creator.Strategy;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,8 +29,10 @@ public class PersonFacadeTest {
     private static EntityManagerFactory emf;
     private static PersonFacade personfacade;
 
-    private Person p1, p2;
+    private static final Address ADDRESS_TEST = new Address("TestStreet", "TestCity","TestZip");
 
+    private Person p1, p2;
+    private Address address, address2;
     public PersonFacadeTest() {
     }
 
@@ -46,8 +44,12 @@ public class PersonFacadeTest {
 
     @BeforeEach
     public void setUp() {
+        address = new Address("Langgade", "Copenhagen","9999");
+        address2 = new Address("Kortgade", "Copenhagen", "9998");
         p1 = new Person("Peter", "Petersen", "1111");
+        address.addPerson(p1);
         p2 = new Person("Lars", "Larsen", "2222");
+        address2.addPerson(p2);
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
@@ -80,14 +82,14 @@ public class PersonFacadeTest {
     @Test
     public void testEditPerson_with_missing_input() {
         assertThrows(MissingInputException.class, () -> {
-            PersonDTO person = new PersonDTO("","","1111");
+            PersonDTO person = new PersonDTO("","","1111", ADDRESS_TEST);
             personfacade.editPerson(person);
         });
     }
 
     @Test
     public void testEditPerson_with_valid_id() throws PersonNotFoundException, MissingInputException {
-        PersonDTO personDTO = new PersonDTO("FN","Petersen","1111");
+        PersonDTO personDTO = new PersonDTO("FN","Petersen","1111", address);
         personDTO.setId(1);
         PersonDTO updated = personfacade.editPerson(personDTO);
         assertEquals(1, updated.getId());
@@ -129,13 +131,13 @@ public class PersonFacadeTest {
     @Test
     public void testAddPerson_with_missing_input() {
         assertThrows(MissingInputException.class, () -> {
-            personfacade.addPerson(null,"","3333");
+            personfacade.addPerson(null,"","3333", ADDRESS_TEST);
         });
     }
 
     @Test
     public void testAddPerson() throws MissingInputException {
-        PersonDTO created = personfacade.addPerson("Bo", "Nielsen", "3333");
+        PersonDTO created = personfacade.addPerson("Bo", "Nielsen", "3333", ADDRESS_TEST);
         assertEquals(3, created.getId());
         assertEquals("Bo", created.getFirstName());
         assertEquals("Nielsen", created.getLastName());

@@ -4,6 +4,9 @@ package entity;
  * version 1.0
  */
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import org.eclipse.persistence.jpa.jpql.tools.model.ICaseExpressionStateObjectBuilder;
+
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.*;
@@ -31,19 +34,22 @@ public class Person implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Integer id;
-    @Column(name="firstName")
     private String firstName;
-    @Column(name="lastName")
     private String lastName;
-    @Column(name="phone")
     private String phone;
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date created;
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastEdited;
+
+    @ManyToOne(
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.PERSIST, CascadeType.REMOVE}
+    )
+    @JoinColumn(name = "ADDRESS_ID")
+    private Address address;
 
     public Person() {
     }
@@ -76,4 +82,8 @@ public class Person implements Serializable {
     public void setCreated(Date created) { this.created = created; }
     public Date getLastEdited() { return lastEdited; }
     public void setLastEdited(Date lastEdited) { this.lastEdited = lastEdited; }
+    public Address getAddress() { return address; }
+    public void setAddress(Address address) {
+        this.address = address;
+    }
 }

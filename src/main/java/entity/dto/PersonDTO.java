@@ -1,15 +1,18 @@
 package entity.dto;
 
+import entity.Address;
 import entity.Person;
 
 public class PersonDTO {
     private int id;
     private String firstName, lastName, phone;
+    private Address address;
 
-    public PersonDTO(String firstName, String lastName, String phone) {
+    public PersonDTO(String firstName, String lastName, String phone, Address address) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.phone = phone;
+        this.address = address;
     }
 
     public PersonDTO(Person person) {
@@ -17,40 +20,31 @@ public class PersonDTO {
         this.firstName = person.getFirstName();
         this.lastName = person.getLastName();
         this.phone = person.getPhone();
+        this.address = person.getAddress();
     }
 
-
-    public int getId() {
-        return id;
-    }
-
+    public int getId() { return id; }
     public void setId(int id) {
         this.id = id;
     }
-
     public String getFirstName() {
         return firstName;
     }
-
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
-
-    public String getLastName() {
-        return lastName;
-    }
-
+    public String getLastName() { return lastName; }
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
-
     public String getPhone() {
         return phone;
     }
-
     public void setPhone(String phone) {
         this.phone = phone;
     }
+    public Address getAddress() { return address; }
+    public void setAddress(Address address) { this.address = address; }
 
     @Override
     public boolean equals(Object obj) {

@@ -4,6 +4,7 @@ package rest;
  * version 1.0
  */
 
+import entity.Address;
 import entity.Person;
 import entity.dto.PersonDTO;
 import exception.MissingInputException;
@@ -43,8 +44,9 @@ public class PersonResourceTest {
 
     private static final int SERVER_PORT = 7777;
     private static final String SERVER_URL = "http://localhost/api";
-    private static Person r1, r2;
-
+    private static final Address ADDRESS_TEST = new Address("TestStreet", "TestCity","TestZip");
+    private static Person p1, p2;
+    private static Address a1, a2;
     static final URI BASE_URI = UriBuilder.fromUri(SERVER_URL).port(SERVER_PORT).build();
     private static HttpServer httpServer;
     private static EntityManagerFactory emf;
@@ -74,13 +76,17 @@ public class PersonResourceTest {
     @BeforeEach
     public void setUp() {
         EntityManager em = emf.createEntityManager();
-        r1 = new Person("Lars", "Larsen", "1111");
-        r2 = new Person("Niels", "Nielsen", "2222");
+        a1 = new Address("Street1", "City1", "1");
+        a2 = new Address("Street2", "City2", "2");
+        p1 = new Person("Lars", "Larsen", "1111");
+        a1.addPerson(p1);
+        p2 = new Person("Niels", "Nielsen", "2222");
+        a2.addPerson(p2);
         try {
             em.getTransaction().begin();
             em.createNamedQuery("Person.Truncate").executeUpdate();
-            em.persist(r1);
-            em.persist(r2);
+            em.persist(p1);
+            em.persist(p2);
             em.getTransaction().commit();
         } finally {
             em.close();
@@ -113,16 +119,16 @@ public class PersonResourceTest {
     public void testDeletePerson_with_valid_id() {
         PersonDTO person =
                 when()
-                .delete("person/{id}",r1.getId())
+                .delete("person/{id}", p1.getId())
                 .then()
                 .statusCode(200)
                 .extract().body().jsonPath().getObject("", PersonDTO.class);
-        assertEquals(person, new PersonDTO(r1));
+        assertEquals(person, new PersonDTO(p1));
     }
 
     @Test
     public void testUpdatePerson_with_missing_input() {
-        PersonDTO person = new PersonDTO("Niels", "", "4444");
+        PersonDTO person = new PersonDTO("Niels", "", "4444", ADDRESS_TEST);
         person.setId(1);
         given()
                 .contentType("application/json")
@@ -137,7 +143,7 @@ public class PersonResourceTest {
 
     @Test
     public void testUpdatePerson() {
-        PersonDTO person = new PersonDTO("Niels", "Larsen", "4444");
+        PersonDTO person = new PersonDTO("Niels", "Larsen", "4444", ADDRESS_TEST);
         person.setId(1); // Update person with id = 1
         given()
                 .contentType("application/json")
@@ -154,7 +160,7 @@ public class PersonResourceTest {
 
     @Test
     public void testCreatePerson_with_missing_input() {
-        PersonDTO person = new PersonDTO("Benny", "", "3333");
+        PersonDTO person = new PersonDTO("Benny", "", "3333", ADDRESS_TEST);
         given()
                 .contentType("application/json")
                 .body(person)
@@ -168,7 +174,7 @@ public class PersonResourceTest {
 
     @Test
     public void testCreatePerson() {
-        PersonDTO person = new PersonDTO("Benny", "Hill", "3333");
+        PersonDTO person = new PersonDTO("Benny", "Hill", "3333", ADDRESS_TEST);
         given()
                 .contentType("application/json")
                 .body(person)
@@ -187,8 +193,8 @@ public class PersonResourceTest {
                 when().get("person/all")
                 .then()
                 .extract().body().jsonPath().getList("all", PersonDTO.class);
-        PersonDTO pdto = new PersonDTO(r1);
-        PersonDTO p2dto = new PersonDTO(r2);
+        PersonDTO pdto = new PersonDTO(p1);
+        PersonDTO p2dto = new PersonDTO(p2);
         assertThat(persons, containsInAnyOrder(pdto,p2dto));
     }
 
@@ -205,7 +211,7 @@ public class PersonResourceTest {
 
     @Test
     public void testGetById_with_valid_id() {
-        when().get("person/{id}", r1.getId())
+        when().get("person/{id}", p1.getId())
                 .then()
                 .statusCode(200)
                 .body("firstName", equalTo("Lars"),

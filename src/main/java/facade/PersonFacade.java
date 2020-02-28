@@ -4,6 +4,7 @@ package facade;
  * version 1.0
  */
 
+import entity.Address;
 import entity.Person;
 import entity.dto.PersonDTO;
 import entity.dto.PersonsDTO;
@@ -108,11 +109,13 @@ public class PersonFacade implements IPersonFacade {
         }
     }
 
-    public PersonDTO addPerson(String firstName, String lastName, String phone) throws MissingInputException {
+    @Override
+    public PersonDTO addPerson(String firstName, String lastName, String phone, Address address) throws MissingInputException {
         if(firstName == null || lastName == null || firstName.equals("") || lastName.equals("")) {
             throw new MissingInputException();
         }
         Person person = new Person(firstName, lastName, phone);
+        address.addPerson(person);
         EntityManager entityManager = getEntityManager();
         try {
             entityManager.getTransaction().begin();

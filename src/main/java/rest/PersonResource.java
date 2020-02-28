@@ -50,7 +50,7 @@ public class PersonResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addPerson(String json) throws MissingInputException {
         PersonDTO personDTO = new Gson().fromJson(json, PersonDTO.class);
-        personDTO = FACADE.addPerson(personDTO.getFirstName(), personDTO.getLastName(),personDTO.getPhone());
+        personDTO = FACADE.addPerson(personDTO.getFirstName(), personDTO.getLastName(),personDTO.getPhone(),personDTO.getAddress());
         return Response.ok(personDTO).build();
     }
 
