@@ -4,4 +4,4 @@
 ### Check branch 'ClassRelations' for work on the assignments about the person-address relations
 
 ### Last part of the Week 1 assignments can be found here:
-![Exam-Prep]("https://github.com/Paepke-cph/Exam-Prep")
+![Exam-Prep]("https://github.com/Paepke-cph/Exam-Prep.git")
