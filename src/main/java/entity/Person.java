@@ -44,11 +44,7 @@ public class Person implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastEdited;
 
-    @ManyToOne(
-            fetch = FetchType.LAZY,
-            cascade = {CascadeType.PERSIST, CascadeType.REMOVE}
-    )
-    @JoinColumn(name = "ADDRESS_ID")
+    @ManyToOne
     private Address address;
 
     public Person() {
@@ -85,5 +81,6 @@ public class Person implements Serializable {
     public Address getAddress() { return address; }
     public void setAddress(Address address) {
         this.address = address;
+        address.addPerson(this);
     }
 }

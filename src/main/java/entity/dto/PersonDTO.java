@@ -3,9 +3,13 @@ package entity.dto;
 import entity.Address;
 import entity.Person;
 
+import javax.json.bind.annotation.JsonbTransient;
+import java.beans.Transient;
+
 public class PersonDTO {
     private int id;
     private String firstName, lastName, phone;
+    @JsonbTransient
     private Address address;
 
     public PersonDTO(String firstName, String lastName, String phone, Address address) {

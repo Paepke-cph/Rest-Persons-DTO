@@ -28,7 +28,7 @@ public class Address implements Serializable {
     private String city;
     private String zip;
 
-    @OneToMany(mappedBy = "address")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "address", fetch = FetchType.LAZY)
     private List<Person> persons = new ArrayList<>();
 
     public Address() {
@@ -77,7 +77,6 @@ public class Address implements Serializable {
     }
 
     public void addPerson(Person person) {
-        this.persons.add(person);
-        person.setAddress(this);
+        persons.add(person);
     }
 }

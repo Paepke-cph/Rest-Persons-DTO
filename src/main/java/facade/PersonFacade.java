@@ -115,11 +115,12 @@ public class PersonFacade implements IPersonFacade {
             throw new MissingInputException();
         }
         Person person = new Person(firstName, lastName, phone);
-        address.addPerson(person);
         EntityManager entityManager = getEntityManager();
         try {
             entityManager.getTransaction().begin();
             entityManager.persist(person);
+            entityManager.persist(address);
+            person.setAddress(address);
             entityManager.getTransaction().commit();
         } catch (Exception e) {
             e.printStackTrace();
