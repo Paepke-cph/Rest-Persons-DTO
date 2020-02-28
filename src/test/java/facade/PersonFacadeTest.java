@@ -6,6 +6,8 @@ package facade;
 
 import entity.Person;
 import entity.dto.PersonDTO;
+import entity.dto.PersonsDTO;
+import exception.MissingInputException;
 import exception.PersonNotFoundException;
 import org.eclipse.persistence.jpa.jpql.Assert;
 import utils.EMF_Creator;
@@ -62,10 +64,10 @@ public class PersonFacadeTest {
 
     @Test
     public void testGetAllPerson() {
-        List<PersonDTO> dtos = personfacade.getAllPersons();
-        assertEquals(2, dtos.size());
-        PersonDTO dto1 = dtos.get(0);
-        PersonDTO dto2 = dtos.get(1);
+        PersonsDTO persons = personfacade.getAllPersons();
+        assertEquals(2, persons.getAll().size());
+        PersonDTO dto1 = persons.getAll().get(0);
+        PersonDTO dto2 = persons.getAll().get(1);
 
         assertEquals("Peter", dto1.getFirstName());
         assertEquals("Petersen", dto1.getLastName());
@@ -76,10 +78,17 @@ public class PersonFacadeTest {
     }
 
     @Test
-    public void testEditPerson_with_valid_id() throws PersonNotFoundException {
-        Person person = new Person("FN", "Petersen", "1111");
-        person.setId(1);
-        PersonDTO personDTO = new PersonDTO(person);
+    public void testEditPerson_with_missing_input() {
+        assertThrows(MissingInputException.class, () -> {
+            PersonDTO person = new PersonDTO("","","1111");
+            personfacade.editPerson(person);
+        });
+    }
+
+    @Test
+    public void testEditPerson_with_valid_id() throws PersonNotFoundException, MissingInputException {
+        PersonDTO personDTO = new PersonDTO("FN","Petersen","1111");
+        personDTO.setId(1);
         PersonDTO updated = personfacade.editPerson(personDTO);
         assertEquals(1, updated.getId());
         assertEquals("FN", updated.getFirstName());
@@ -118,7 +127,14 @@ public class PersonFacadeTest {
     }
 
     @Test
-    public void testAddPerson() {
+    public void testAddPerson_with_missing_input() {
+        assertThrows(MissingInputException.class, () -> {
+            personfacade.addPerson(null,"","3333");
+        });
+    }
+
+    @Test
+    public void testAddPerson() throws MissingInputException {
         PersonDTO created = personfacade.addPerson("Bo", "Nielsen", "3333");
         assertEquals(3, created.getId());
         assertEquals("Bo", created.getFirstName());

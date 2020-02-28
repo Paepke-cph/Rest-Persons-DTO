@@ -6,14 +6,12 @@ package facade;
 
 import entity.Person;
 import entity.dto.PersonDTO;
+import entity.dto.PersonsDTO;
+import exception.MissingInputException;
 import exception.PersonNotFoundException;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.TypedQuery;
 
 
 public class PersonFacade implements IPersonFacade {
@@ -40,24 +38,23 @@ public class PersonFacade implements IPersonFacade {
         return emf.createEntityManager();
     }
 
-    public List<PersonDTO> toDTOList(List<Person> personList) {
-        List<PersonDTO> dtos = new ArrayList<>();
-        personList.forEach(person -> {dtos.add(new PersonDTO(person));});
-        return dtos;
-    }
 
     @Override
-    public List<PersonDTO> getAllPersons() {
+    public PersonsDTO getAllPersons() {
         EntityManager entityManager = getEntityManager();
         try {
-            return toDTOList(entityManager.createNamedQuery("Person.getAll", Person.class).getResultList());
+            return new PersonsDTO(entityManager.createNamedQuery("Person.getAll", Person.class).getResultList());
         } finally {
             entityManager.close();
         }
     }
 
     @Override
-    public PersonDTO editPerson(PersonDTO dto) throws PersonNotFoundException {
+    public PersonDTO editPerson(PersonDTO dto) throws PersonNotFoundException, MissingInputException {
+        if(dto.getFirstName() ==  null || dto.getLastName() == null ||
+                dto.getFirstName().equals("") || dto.getLastName().equals("")) {
+            throw new MissingInputException();
+        }
         EntityManager entityManager = getEntityManager();
         PersonDTO updated = null;
         try {
@@ -69,7 +66,7 @@ public class PersonFacade implements IPersonFacade {
                                             .setParameter("id", dto.getId()).executeUpdate();
             entityManager.getTransaction().commit();
             updated = getPerson(dto.getId());
-            if(updated == null) throw new PersonNotFoundException("Person was not found");
+            if(updated == null) throw new PersonNotFoundException();
         } finally {
             entityManager.close();
         }
@@ -87,7 +84,7 @@ public class PersonFacade implements IPersonFacade {
                 int rows = entityManager.createNamedQuery("Person.deleteById", Person.class).setParameter("id", id).executeUpdate();
                 entityManager.getTransaction().commit();
             } else {
-                throw new PersonNotFoundException("Person was not found");
+                throw new PersonNotFoundException("Could not delete, provided id does not exist");
             }
         } finally {
             entityManager.close();
@@ -105,13 +102,16 @@ public class PersonFacade implements IPersonFacade {
             entityManager.close();
         }
         if(person == null) {
-            throw new PersonNotFoundException("Person was not found");
+            throw new PersonNotFoundException();
         } else {
             return new PersonDTO(person);
         }
     }
 
-    public PersonDTO addPerson(String firstName, String lastName, String phone) {
+    public PersonDTO addPerson(String firstName, String lastName, String phone) throws MissingInputException {
+        if(firstName == null || lastName == null || firstName.equals("") || lastName.equals("")) {
+            throw new MissingInputException();
+        }
         Person person = new Person(firstName, lastName, phone);
         EntityManager entityManager = getEntityManager();
         try {

@@ -6,6 +6,7 @@ package rest;
 
 import com.google.gson.Gson;
 import entity.dto.PersonDTO;
+import exception.MissingInputException;
 import exception.PersonNotFoundException;
 import facade.IPersonFacade;
 import facade.PersonFacade;
@@ -30,23 +31,13 @@ public class PersonResource {
     public Response get() {
         return Response.ok().build();
     }
-
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getById(@PathParam("id") int id) {
-        try {
-            PersonDTO person = FACADE.getPerson(id);
-            return Response.ok(person).build();
-        } catch (PersonNotFoundException e) {
-            return Response
-                    .status(404)
-                    .entity("No Person with provided id found!")
-                    .type("application/json")
-                    .build();
-        }
+    public Response getById(@PathParam("id") int id) throws PersonNotFoundException {
+        PersonDTO person = FACADE.getPerson(id);
+        return Response.ok(person).build();
     }
-
     @GET
     @Path("/all")
     @Produces(MediaType.APPLICATION_JSON)
@@ -57,7 +48,7 @@ public class PersonResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response addPerson(String json) {
+    public Response addPerson(String json) throws MissingInputException {
         PersonDTO personDTO = new Gson().fromJson(json, PersonDTO.class);
         personDTO = FACADE.addPerson(personDTO.getFirstName(), personDTO.getLastName(),personDTO.getPhone());
         return Response.ok(personDTO).build();
@@ -66,31 +57,16 @@ public class PersonResource {
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response editPerson(String json) {
+    public Response editPerson(String json) throws PersonNotFoundException, MissingInputException {
         PersonDTO personDTO = new Gson().fromJson(json, PersonDTO.class);
-        try {
-            personDTO = FACADE.editPerson(personDTO);
-            return Response.ok(personDTO).build();
-        } catch (PersonNotFoundException e) {
-            return Response
-                    .status(404)
-                    .entity("No Person with provided id found!")
-                    .type("application/json")
-                    .build();
-        }
+        personDTO = FACADE.editPerson(personDTO);
+        return Response.ok(personDTO).build();
     }
 
     @DELETE
     @Path("/{id}")
-    public Response deletePerson(@PathParam("id") int id) {
-        try {
-            return Response.ok(FACADE.deletePerson(id)).build();
-        } catch(PersonNotFoundException e) {
-            return Response
-                    .status(404)
-                    .entity("Could not delete, provided id does not exist!")
-                    .type("application/json")
-                    .build();
-        }
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deletePerson(@PathParam("id") int id) throws PersonNotFoundException {
+        return Response.ok(FACADE.deletePerson(id)).build();
     }
 }
