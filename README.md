@@ -1,6 +1,20 @@
-# Rest-Persons-DTO Assignment
-## Flow 2 - Week 1 - Day 3 assignment
-Check branch 'ClassRelations' for work on the assignments about the person-address relations
+# Links for this week assignment:
 
-### Last part of the Week 1 assignments can be found here:
-![Exam-Prep](https://github.com/Paepke-cph/Exam-Prep)
+## Callbacks and more:
+* https://github.com/Paepke-cph/JavaScriptExercises2
+
+## Fetch and Promises:
+* https://github.com/Paepke-cph/NPM-Jokes
+* https://github.com/Paepke-cph/Rest-SPA-Backend
+* https://github.com/Paepke-cph/Rest-SPA-Frontend
+
+## CORS And Single Page Application
+* https://github.com/Paepke-cph/CWJ-Backend
+* https://github.com/Paepke-cph/CWJ-Frontend
+
+## Exam preparation exercise about AJAX, CORS, and SVG
+* https://github.com/Paepke-cph/ExamPrep2
+
+## Frontend exercise (last part of exercise from last week)
+* https://github.com/Paepke-cph/Rest-Persons-DTO
+* https://github.com/Paepke-cph/Rest-Persons-DTO-Frontend
