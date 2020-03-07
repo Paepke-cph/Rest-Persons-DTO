@@ -4,6 +4,8 @@ import exception.MissingInputException;
 import exception.mapper.MissingInputMapper;
 import exception.mapper.PersonNotFoundMapper;
 import exception.mapper.GenericExceptionMapper;
+import rest.cors.CorsRequestFilter;
+import rest.cors.CorsResponseFilter;
 
 import java.util.Set;
 import javax.ws.rs.core.Application;
@@ -20,6 +22,8 @@ public class ApplicationConfig extends Application {
 
     private void addRestResourceClasses(Set<Class<?>> resources) {
         resources.add(org.glassfish.jersey.server.wadl.internal.WadlResource.class);
+        resources.add(CorsResponseFilter.class);
+        resources.add(CorsRequestFilter.class);
         resources.add(GenericExceptionMapper.class);
         resources.add(MissingInputMapper.class);
         resources.add(PersonNotFoundMapper.class);
